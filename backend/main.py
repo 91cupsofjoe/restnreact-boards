@@ -10,7 +10,7 @@ from backend.routers.users import users_router
 from backend.routers.threads import threads_router
 
 # Load settings.env (in root directory) for CORS and database parameters
-settings_filepath = "settings.env"
+settings_filepath = Path(__file__).parent / "settings.env"
 load_dotenv(settings_filepath)
 
 # Create FastAPI object

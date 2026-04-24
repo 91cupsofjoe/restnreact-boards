@@ -55,7 +55,7 @@ POST_FIELDS = """
 POST_RESPONSE_FIELDS = """
     p.post_id AS post_id,
     p.post_body AS post_body,
-    p.thread_id AS thread_id ,
+    p.thread_id AS thread_id,
     p.parent_post_id AS parent_post_id,
     p.user_id AS user_id,
     p.created_at AS created_at
@@ -64,7 +64,7 @@ POST_RESPONSE_FIELDS = """
 POST_SUMMARY_RESPONSE_FIELDS = """
     p.post_id AS post_id,
     p.post_body AS post_body,
-    p.thread_id AS thread_id ,
+    p.thread_id AS thread_id,
     t.thread_title AS thread_title,
     p.parent_post_id AS parent_post_id,
     p.user_id AS user_id,
@@ -166,35 +166,15 @@ def delete_post_query(key: str):
 
 # ============================= FETCH OPERATIONS ==============================
 
-USER_RESPONSE_FIELDS = """
-    u.user_id,
-    u.username,
-    u.created_at
-"""
-
-USER_SUMMARY_RESPONSE_FIELDS = USER_RESPONSE_FIELDS
-
-THREAD_SUMMARY_RESPONSE_FIELDS = """
-    t.thread_id,
-    t.thread_title,
-    t.thread_body,
-    t.user_id,
-    u.username,
-    t.created_at
-"""
-
-POST_SUMMARY_RESPONSE_FIELDS = """
-    p.post_id,
-    p.post_body,
-    t.thread_id,
-    t.thread_title,
-    p.parent_post_id,
-    p.user_id,
-    u.username,
-    p.created_at AS post_time
-"""
-
 # ---------------------- users ------------------------
+
+# Lookup for all users
+def all_users_query():
+    return f"""
+        SELECT {USER_SUMMARY_RESPONSE_FIELDS}
+        FROM users u
+        ORDER BY u.username ASC
+    """
 
 # Lookup for user based on user id
 def user_by_user_id_query():
@@ -237,12 +217,21 @@ def users_by_thread_title_query():
 
 # ---------------------- threads ------------------------
 
+# Lookup for all threads
+def all_threads_query():
+    return f"""
+        SELECT {THREAD_SUMMARY_RESPONSE_FIELDS}
+        FROM threads t
+        LEFT JOIN users u ON u.user_id = t.user_id
+        ORDER BY t.created_at DESC
+    """
+
 # Lookup for thread based on thread id
 def thread_by_thread_id_query():
-    return """
-        SELECT
-            t.*
+    return f"""
+        SELECT {THREAD_SUMMARY_RESPONSE_FIELDS}
         FROM threads t
+        LEFT JOIN users u ON u.user_id = t.user_id
         WHERE t.thread_id = %s
     """
 
@@ -256,12 +245,22 @@ def threads_by_thread_title_query():
         ORDER BY t.created_at DESC
     """
 
+# Lookup for threads based on user id
+def threads_by_user_id_query():
+    return f"""
+        SELECT {THREAD_SUMMARY_RESPONSE_FIELDS}
+        FROM threads t
+        LEFT JOIN users u ON t.user_id = u.user_id
+        WHERE u.user_id = %s
+        ORDER BY t.created_at DESC
+    """
+
 # Lookup for threads based on username
 def threads_by_username_query():
     return f"""
         SELECT {THREAD_SUMMARY_RESPONSE_FIELDS}
         FROM threads t
-        JOIN users u ON t.user_id = u.user_id
+        LEFT JOIN users u ON t.user_id = u.user_id
         WHERE u.username ILIKE %s
         ORDER BY t.created_at DESC
     """
@@ -278,12 +277,22 @@ def threads_by_keyword_query():
 
 # ---------------------- posts ------------------------
 
+# Lookup for all posts
+def all_posts_query():
+    return f"""
+        SELECT {POST_SUMMARY_RESPONSE_FIELDS}
+        FROM posts p
+        JOIN threads t ON p.thread_id = t.thread_id
+        LEFT JOIN users u ON p.user_id = u.user_id
+        ORDER BY p.created_at DESC
+    """
+
 # Lookup for post based on post id
 def post_by_post_id_query():
-    return """
-        SELECT
-            p.*
+    return f"""
+        SELECT {POST_SUMMARY_RESPONSE_FIELDS}
         FROM posts p
+        LEFT JOIN users u ON u,user_id = p.user_id
         WHERE p.post_id = %s
     """
 
@@ -299,7 +308,18 @@ def posts_by_username_query():
         ORDER BY p.created_at DESC
     """
 
-# Lookup for posts based on thread titles
+# Lookup for posts based on thread id
+def posts_by_thread_id_query():
+    return f"""
+        SELECT {POST_SUMMARY_RESPONSE_FIELDS}
+        FROM posts p
+        JOIN threads t ON p.thread_id = t.thread_id
+        LEFT JOIN users u ON p.user_id = u.user_id
+        WHERE t.thread_id = %s
+        ORDER BY p.created_at DESC
+    """
+
+# Lookup for posts based on thread title
 def posts_by_thread_title_query():
     return f"""
         SELECT {POST_SUMMARY_RESPONSE_FIELDS}

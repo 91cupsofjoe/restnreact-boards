@@ -58,8 +58,10 @@ function ThreadsPage() {
                 //  which is stored in the state
                 setThreads(data);
             } catch (err) {
+                console.error("loadThreads error:", err)
                 // This will set an error message in the state
-                setError("Failed to load threads!");
+                // setError("Failed to load threads!");
+                setError(err.message);
             // Regardless of error or not, stop page loading
             } finally {
                 setLoading(false);

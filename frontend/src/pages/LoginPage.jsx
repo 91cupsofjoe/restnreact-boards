@@ -1,4 +1,5 @@
 function LoginPage() {
+    localStorage.setItem("userId", 1);
     return (
         <div>
             <h1>Login</h1>

@@ -31,19 +31,17 @@ post_summary_response_keys = [
 # Create a new post
 @posts_router.post("/posts",
                 response_model=sc.PostResponse)
-def create_new_post(
-    post_body: str,
-    thread_id: int,
-    user_id: int,
-    parent_post_id: Optional[int] = None,
-):
+def create_new_post(ps: sc.PostCreateRequest):
+    
+    """
+    Post create params:
+        post_body: str,
+        thread_id: int,
+        user_id: int,
+        parent_post_id: Optional[int] = None
+    """
     return util.create_new_entry(
-        sc.PostCreateRequest(
-            post_body=post_body,
-            thread_id=thread_id,
-            parent_post_id=parent_post_id,
-            user_id=user_id
-        ),
+        ps,
         post_response_keys,
         sc.PostResponse,
         cd.create_post,
@@ -79,16 +77,29 @@ def delete_posts_by_user(user_id: int):
 
 # =============================== GET methods ==================================
 
+# Fetch all threads
+@posts_router.get("/posts", response_model=list[sc.PostSummaryResponse])
+def get_all_posts():
+    return util.get_search_results(
+        cd.all_posts_query(),
+        [],
+        post_summary_response_keys,
+        sc.PostSummaryResponse,
+        "posts",
+        single_result=False
+    )
+
 # Fetch post by post id
-@posts_router.get("/posts/post-id/{post_id}", response_model=list[sc.PostResponse])
+@posts_router.get("/posts/post-id/{post_id}",
+                response_model=list[sc.PostSummaryResponse])
 def get_post_by_post_id(post_id: int):
     return util.get_search_results(
         cd.post_by_post_id_query(),
         [post_id],
-        post_response_keys,
-        sc.PostResponse,
+        post_summary_response_keys,
+        sc.PostSummaryResponse,
         "posts",
-        single_result=False
+        single_result=True
     )
 
 # Fetch posts by username
@@ -98,6 +109,19 @@ def get_posts_by_username(username: str):
     return util.get_search_results(
         cd.posts_by_username_query(),
         [f"%{username}%"],
+        post_summary_response_keys,
+        sc.PostSummaryResponse,
+        "posts",
+        single_result=False
+    )
+
+# Fetch posts by thread id
+@posts_router.get("/threads/{thread_id}/posts",
+                response_model=list[sc.PostSummaryResponse])
+def get_posts_by_thread_id(thread_id: int):
+    return util.get_search_results(
+        cd.posts_by_thread_id_query(),
+        [thread_id],
         post_summary_response_keys,
         sc.PostSummaryResponse,
         "posts",
@@ -129,3 +153,5 @@ def get_posts_by_keyword(keyword: str):
         "posts",
         single_result=False
     )
+
+# =============================================================================

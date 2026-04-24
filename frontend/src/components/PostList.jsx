@@ -23,7 +23,7 @@ function PostList({posts}) {
                             borderRadius: "8px"
                         }}
                     >
-                        <p>{post.body}</p>
+                        <p>{post.post_body}</p>
                         <small>
                             Posted by: {post.username} |
                             {new Date(post.created_at).toLocaleString(undefined, {

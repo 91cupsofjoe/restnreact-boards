@@ -45,10 +45,10 @@ def get_search_results(query, params, keys, schema, entry_type: str,
         )
         
     if single_result:
-        return get_schema(
+        return [get_schema(
             entries[0],
             keys,
-            schema)
+            schema)]
     
     return get_schemas(
         entries,

@@ -1,4 +1,7 @@
+import {Link} from "react-router-dom";
 // ThreadList imports this component
+
+const API_URL = "http://127.0.0.1:8000";
 
 // The argument passed in here is a destructured props object
 function ThreadCard({thread, onSelectThread}) {
@@ -20,7 +23,7 @@ function ThreadCard({thread, onSelectThread}) {
          *  Include "[deleted]" for null usernames (similar to Reddit)
          */
         <Link
-            to={'/threads/${thread.thread_id'}
+            to={`/threads/${thread.thread_id}`}
             style={{
                 textDecoration: "none",
                 color: "inherit"
@@ -35,10 +38,10 @@ function ThreadCard({thread, onSelectThread}) {
                     cursor: "pointer"
                 }}
             >   
-                <h3>{thread.title}</h3>
-                <p>{thread.body}</p>
+                <h3>{thread.thread_title}</h3>
+                <p>{thread.thread_body}</p>
                 <small>
-                    Posted by: {thread.username || "[deleted]"}
+                    Posted by: {thread.username}
                 </small>
             </div>
         </Link>

@@ -4,6 +4,12 @@ import {createPost} from "../services/api";
 function CreatePostForm({threadId, onPostCreated}) {
     const [body, setBody] = useState("");
     const [error, setError] = useState("");
+    const testId = localStorage.getItem("userId");
+
+    if (!testId) {
+        setError("You must be logged in to post!");
+        return;
+    }
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -17,15 +23,15 @@ function CreatePostForm({threadId, onPostCreated}) {
             setError("");
 
             await createPost({
-                body: body,
+                post_body: body,
                 thread_id: Number(threadId),
-                parent_post_id: null,
-                user_id: 1
+                user_id: Number(testId)
             });
 
             setBody("");
             onPostCreated();
         } catch (err) {
+            console.error(err);
             setError("Failed to create post!");
         }
     }

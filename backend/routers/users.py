@@ -21,15 +21,14 @@ user_summary_response_keys = [
 
 # Create a new user
 @users_router.post("/users", response_model=sc.UserResponse)
-def create_new_user(
-    username: str,
-    password: str
-):
+def create_new_user(us: sc.UserCreateRequest):
+    """
+    User create params:
+        username: str,
+        password: str
+    """
     return util.create_new_entry(
-        sc.UserCreateRequest(
-            username=username,
-            password=password
-        ),
+        us,
         user_response_keys,
         sc.UserResponse,
         cd.create_user,
@@ -52,6 +51,18 @@ def delete_user(user_id: int):
     )
 
 # =============================== GET methods ==================================
+
+# Fetch all threads
+@users_router.get("/users", response_model=list[sc.UserSummaryResponse])
+def get_all_users():
+    return util.get_search_results(
+        cd.all_users_query(),
+        [],
+        user_summary_response_keys,
+        sc.UserSummaryResponse,
+        "users",
+        single_result=False
+    )
 
 # Fetch user by user id
 @users_router.get("/users/user-id/{user_id}", response_model=sc.UserResponse)
@@ -90,3 +101,5 @@ def get_users_by_thread_title(thread_title: str):
         "users",
         single_result=False
     )
+
+# =============================================================================

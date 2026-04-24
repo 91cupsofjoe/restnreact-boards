@@ -20,7 +20,7 @@ export async function getThreads() {
      * Need to use await here so that the code pauses until fetch() can return
      *  the response
      */
-    const response = await fetch('${API_URL}/threads');
+    const response = await fetch(`${API_URL}/threads`);
     if (!response.ok) {
         throw new Error("Failed to fetch threads!");
     }
@@ -31,9 +31,41 @@ export async function getThreads() {
     return data;
 }
 
-// Function to fetch posts (by thread id) from the backend/database
+// Function to fetch threads by thread id
+export async function getThreadByThreadId(threadId) {
+    const response = await fetch(
+        `${API_URL}/threads/thread-id/${threadId}`
+    );
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch thread by thread id:
+            ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data;
+}
+
+// Function to fetch threads by username
+export async function getThreadsByUsername(username) {
+    const response = await fetch(
+        `${API_URL}/threads/by-user/${encodeURIComponent(username)}`
+    )
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch threads by username:
+            ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data;
+}
+
+// Function to fetch posts by thread id
 export async function getPostsByThreadId(threadId) {
-    const response = await fetch('${API_URL}/threads/${threadId}/posts');
+    const response = await fetch(`${API_URL}/threads/${threadId}/posts`);
 
     if (!response.ok) {
         throw new Error("Failed to fetch posts!");
@@ -44,15 +76,17 @@ export async function getPostsByThreadId(threadId) {
 }
 
 export async function createPost(postData) {
-    const response = await fetch('${API_URL}/posts', {
+    const response = await fetch(`${API_URL}/posts`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         },
         body: JSON.stringify(postData)
     });
 
     if (!response.ok) {
+        const text = await response.text();
+        console.error("Create post failed:", response.status, text);
         throw new Error("Failed to create post!");
     }
 
